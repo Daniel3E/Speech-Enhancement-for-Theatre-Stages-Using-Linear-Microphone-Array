@@ -94,7 +94,7 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 
 
 ## <font size=5>**ADC Wire connection to FPGA** </font>
-![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/ADC_connection.jpeg)
+![Block_Diagram]([https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/tree/main/Diagram/ADC_connection.jpeg)
 (Fig. The connection of the ADC)
 
 We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
@@ -124,7 +124,7 @@ To start the algorithm, you need to first set the switch number 14 to 1. This se
 As the core of the system, we designed and tested the algorithms structure consisting of multiple entities.
 
 The simple algorithm should pan the output audio towards the loudest microphone. The blocks are described in the figure below.
-![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/Simple.png)
+![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/tree/main/Diagram/Simple.png)
 
 The key thought is that the complex algorithms should **extract** acoustic information from audio in each channel and **combine** them into "_join force_". It is possible to **calculate** the 2D position profile according to this _force_.
 
