@@ -1,4 +1,5 @@
-# <font size=6>**FPGA implementation microphone system for a theatre stage:**</font>
+# <font size=6>**Speech Enhancement for Theatre Stages
+Using Linear Microphone Array:**</font>
 
 ----------------
 
