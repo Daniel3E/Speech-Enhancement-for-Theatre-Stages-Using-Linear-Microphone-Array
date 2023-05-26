@@ -103,9 +103,9 @@ We can see that only J11, 12, 13, 14 and J27 are installed for the input signals
 To run the project by your own, you need to establish the communication with ADC. You need to use the switches in order. The switches on the FPGA (From 1 to 7):
 
 
-{ SW_vdd_ok } —— Starts ACFC.  Let be on logical 1.
+{ SW_vdd_ok } —— Starts ACFC.  Set to logical 1.
 
-{ SHDNZ_ready }  ——  Inverse shutdown of ADC. Let be on logical 1. 
+{ SHDNZ_ready }  ——  Inverse shutdown of ADC. Set to logical 1. 
 
 { GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Toggle switch to 1 then back to 0. 
 
@@ -117,13 +117,13 @@ To run the project by your own, you need to establish the communication with ADC
 
 { finish_config_input }  —— Finish the configuration. Toggle switch to 1 then back to 0. 
 
-{ MCLK_root }  —— Set as logical 1.
+{ MCLK_root }  —— Set to logical 1.
 
 After doing the last step, you should start getting audio data from the SDOUT pin of the ADC. This is mapped through the audio capturing protocol on the FPGA.
 
 For exact connection between the ADC and FPGA, check the constraint file.
 
-To start the algorithm, you need to first set the switch number 14 to 1. This sets the ENABLE_ALGORITHM flag. Then set switch 15 to 1 to enable reading of the I2S bus. If you want to send data through ethernet, set switch 16 to one. To reset ethernet driver for a new sample collection, toggle switch 8 to 1 and back to 0.
+To start the algorithm, you need to set the switch number 14 to logical 1. This sets the ENABLE_ALGORITHM flag. Then set switch 15 to 1 to enable reading of the I2S bus. If you want to send data through ethernet, set switch 16 to one. To reset ethernet driver for a new sample collection, toggle switch 8 to 1 and back to 0.
 
 ## <font size=5>**Algorithms Design (Extraction + Addressing + Combination)** </font>
 
@@ -414,11 +414,11 @@ Wave generator can be used to test the pipeline between the ADC and DAC. Without
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTg2NjM3OTkwLC02OTUyODA4NzEsMTg0Mz
-YxNjg4MiwtMTc3NjEyMzM5MSw1NDc0MTA4MTMsMzE3NTgyMDks
-NTI2MjE2MTEwLC03NDIwMTk3NDgsLTM2NTQ0MTkyOSwtMTU5Mj
-A1Njg3MiwtMzc3MzcxMzE4LDY3MDM1ODE2LDUyOTU2Njg0Myw4
-NjQxNTc2NSwtOTY5NTY0ODE0LDUyNTIwNTI2LC0zNDc0MjYxOT
-AsLTE0NzY5NTIxODUsMTgyMTEyNjY3NCwtMTY4MDMzNDAyMF19
+eyJoaXN0b3J5IjpbMTExNDUwMDU5Miw1ODY2Mzc5OTAsLTY5NT
+I4MDg3MSwxODQzNjE2ODgyLC0xNzc2MTIzMzkxLDU0NzQxMDgx
+MywzMTc1ODIwOSw1MjYyMTYxMTAsLTc0MjAxOTc0OCwtMzY1ND
+QxOTI5LC0xNTkyMDU2ODcyLC0zNzczNzEzMTgsNjcwMzU4MTYs
+NTI5NTY2ODQzLDg2NDE1NzY1LC05Njk1NjQ4MTQsNTI1MjA1Mj
+YsLTM0NzQyNjE5MCwtMTQ3Njk1MjE4NSwxODIxMTI2Njc0XX0=
 
 -->
