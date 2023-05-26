@@ -80,7 +80,7 @@ The simple algorithm uses power estimation to determine the best source micropho
 
 ## <font size=5>**Block Diagram and System Introduction**</font>
 
-![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/DAT096-Block_Diagram.png)
+![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/blob/main/Diagram/DAT096-Block_Diagram.png)
 
 (Fig.1 Block Diagram)
 
@@ -94,7 +94,7 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 
 
 ## <font size=5>**ADC Wire connection to FPGA** </font>
-![Block_Diagram]([https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/tree/main/Diagram/ADC_connection.jpeg)
+![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/blob/main/Diagram/ADC_connection.jpeg)
 (Fig. The connection of the ADC)
 
 We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
@@ -124,7 +124,7 @@ To start the algorithm, you need to first set the switch number 14 to 1. This se
 As the core of the system, we designed and tested the algorithms structure consisting of multiple entities.
 
 The simple algorithm should pan the output audio towards the loudest microphone. The blocks are described in the figure below.
-![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/tree/main/Diagram/Simple.png)
+![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/blob/main/Diagram/Simple.PNG)
 
 The key thought is that the complex algorithms should **extract** acoustic information from audio in each channel and **combine** them into "_join force_". It is possible to **calculate** the 2D position profile according to this _force_.
 
@@ -133,7 +133,7 @@ The key thought is that the complex algorithms should **extract** acoustic infor
 - The _Picture Creator_ is a control unit to **address** the ROM.
 - The _ADD_ and _MAX_ ***combine*** the output from _Picture Creator_.
 
-![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/complex_algo_description.png)
+![Block_Diagram](https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/blob/main/Diagram/complex_algo_description.png)
 
 (Fig.2 Complex algorithm)
 
@@ -270,7 +270,7 @@ Each of the states in this ***FSM*** will call a small ‘***fsm***’ which imp
 
 
 
-<div align=center><img src="https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/ACFC_and_I2C_fsm.png"    height = "500" /></div>
+<div align=center><img src="https://github.com/Daniel3E/Speech-Enhancement-for-Theatre-Stages-Using-Linear-Microphone-Array/blob/main/Diagram/ACFC_and_I2C_fsm.png"    height = "500" /></div>
 
 (Fig.3 FSM-fsm)
 
@@ -399,12 +399,19 @@ Wave generator can be used to test the pipeline between the ADC and DAC. Without
 
 <br>
 
-### <font size=4>Microphone and Data</font>
-
-
 
 <br>
 
 
 
 
+
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTc0MjAxOTc0OCwtMzY1NDQxOTI5LC0xNT
+kyMDU2ODcyLC0zNzczNzEzMTgsNjcwMzU4MTYsNTI5NTY2ODQz
+LDg2NDE1NzY1LC05Njk1NjQ4MTQsNTI1MjA1MjYsLTM0NzQyNj
+E5MCwtMTQ3Njk1MjE4NSwxODIxMTI2Njc0LC0xNjgwMzM0MDIw
+LC0yMDg3ODA3ODExLDE1MDY0NDgzMDAsLTIyMzY0NDYzMSwtNj
+AwOTc3OTExLDY2NDQ3NjQ3NywxNDkzMTE5NTI4LDIwMjMwMDcz
+NDddfQ==
+-->
