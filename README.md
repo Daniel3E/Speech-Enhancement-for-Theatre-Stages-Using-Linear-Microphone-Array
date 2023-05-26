@@ -6,9 +6,9 @@
 
 ## <font size=5>**Specification**</font>
 
-- This project aims to capture audio using a linear microphone array and process it using a FPGA finally output the processed audio. The linear array consists of four microphones that are being connected to hardware using AD converters, then processed by an FPGA and output through a DA converter.
+This project aims to capture audio using a linear microphone array and process it using a FPGA finally output the processed audio. The linear array consists of four microphones that are being connected to hardware using AD converters, then processed by an FPGA and output through a DA converter.
 
-- There is two different implementations of audio combination labeled as a simple and a complex algorithm.
+There is two different implementations of audio combination labeled as a simple and a complex algorithm.
 
 The simple algorithm uses power estimation to determine the best source microphone. The complex algorithm calculates the position of an actor to compensate for attenuation.
 
@@ -45,24 +45,19 @@ The simple algorithm uses power estimation to determine the best source micropho
 
 ## <font size=5>**What can be better in future?**</font>
 
-- **Branch A**  --- Algorithm in MATLAB
+ --- Algorithm in MATLAB
 
-  - "_Any algorithm substitution ??_ ". 
-  - Suitable ***filter*** cutting up ***audio feedback***.
-  - Suitable filter improving noise.
-  - Suitable quantization parameters for testing. 
 
-- **Branch B**  --- Algorithm mapping into VHDL
+  - Suitable ***filter*** to prevent ***audio feedback***.
+
+  
+ --- Algorithm mapping into VHDL
 
   - Improving the quality of code to get ***lower hardware utilization***.
   - Better testbench for more coverage.
   - Pipeline design for better performance.
 
-- **Branch C**  --- Communication
-
-  - Add a control unit for all blocks (or only for Ethernet).
-
-  - Better ***Big/small endian converting*** in Ethernet datapath (header, data and CRC).
+  --- Communication
 
   - Linear Feedback Shift Register (**_LFSR_**) for CRC in Ethernet.
 
@@ -71,11 +66,10 @@ The simple algorithm uses power estimation to determine the best source micropho
     (https://www.analog.com/en/technical-articles/interfacing-fpgas-to-an-adcs-digital-data-output.html)
 
   - Suitable encoding and checksum in the audio data path.
-
-- **Branch D**  --- Others
-
-  - Reducing switches.
-  - Add display terminal.
+ 
+--- Other  
+- Reducing switches.
+ - Add display terminal.
 
 <br>
 
@@ -99,12 +93,13 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 <br>
 
 
-## <font size=5>**ADC Wire connection to FPGA and system establishment** </font>
+## <font size=5>**ADC Wire connection to FPGA** </font>
 ![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/ADC_connection.jpeg)
 (Fig. The connection of the ADC)
 
 We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
 
+## <font size=5>**Installation and Setup** </font>
 To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to 6):
 { SW_vdd_ok } —— Start ACFC.  Let be on logical 1
 
@@ -121,7 +116,7 @@ After doing the last step, you should start getting audio data from the DOUT pin
 
 For exact connection between the ADC and FPGA, check the constraint file.
 
-To start the algorithm, you need to first set the switch 
+To start the algorithm, you need to first set the switch number 14 to 1. This sets ENABLE_ALGORITHM to one. Then set switch 15 to 1 to enable I2S. If you want to send data through Ethernet, set switch 15 to one.
 
 ## <font size=5>**Algorithm Design (Extraction + Addressing + Combination)** </font>
 
@@ -151,15 +146,26 @@ MATLAB provides a toolbox to receive streams through UDP, also, like what we use
 
 <br>
 
-## <font size=5>**KEY Parameter**</font>
-
+## <font size=5>**KEY Parameters**</font>
+--- General system parameters
 - Audio: I<sup>2</sup>S audio format with 48kHz FSYNC, 12.288MHz BCLK, and 16-bit word length. Input is in two's complement.
 - Ethernet: 100MHz; the frame is 50  + 18 + 4 = 72 bytes, takes in 5.76 us.
-- I<sup>2</sup>C: 
+- System clock frequency: 100 MHz  Sample frequency/FSYNC: 48 kHz  BCLK: 12,288 MHz  Signal width: 16 bits
+-  Microphones: Shure SM57 and AKG C568EB  ADC Board: TI PCM6240Q1EVM-PDK  DAC board: LT DC2459A  FPGA board: Digilent Nexys A7-100T
 
+--- Simple algorithm specific parameters
+- Time window for power estimation: 100 samples 
+- Accumulating unit for panning accumulator: 2 −10
 
-
-
+--- Complex algorithm specific parameters
+- Time window for cross-correlation: 10 000 samples 
+- Cut-off frequency of high pass filter: 1 kHz 
+-  Cut-off frequency of low pass filter: 7 kHz 
+-  LUT resolution: 64 x 64 pixels or approximately 8 pixels/m 
+-  LUT size: 5 x 5 m 
+-  Correlation image: 10 x 5 m 
+-  Final image: 8 x 5 m 
+-  Microphone spacing: 1 m
 <br>
 
 -----
@@ -168,7 +174,7 @@ MATLAB provides a toolbox to receive streams through UDP, also, like what we use
 
 ## <font size=5>**VHDL Design Details**</font>
 
-A file tree to show our project design here (_also in the newest released version folder_): 
+A file tree to show our project design: 
 
 ### \***<font size=4>TOP.vhdl </font>**
 
@@ -177,9 +183,7 @@ A file tree to show our project design here (_also in the newest released versio
 
 - **Interface in control path**
 
-  - I<sup>2</sup>C master
-
--  **Interface in datapath**:
+  -  **Interface in datapath**:
    - I<sup>2</sup>S receiver
 
 
@@ -211,7 +215,7 @@ A file tree to show our project design here (_also in the newest released versio
 
 
 
-​	&ensp;|—**other files**
+- **other files**
 
 PLL12M : This is done by using the clocking_wizard IP block
 LUTv : This is done by using the block memory generator IP block
@@ -299,7 +303,7 @@ Registers' addresses and values are 8 bits that 2×9 states in two launch-set ca
 
 ### <font size=4>Serial-to-Parallel in I<sup>2</sup>S</font>
 
-Serial stream mixtures 4 channels' audio in SDOUT. Simple counter or fsm design can parallel channels in one FSYNC cycle since the channels' wordlength and BCLK is same one. NOTE: The audio captured is in  two's complement, with the MSB as first bit.
+Serial stream mixtures 4 channels audio in SDOUT. Simple counter or fsm design can parallel channels in one FSYNC cycle since the channels' wordlength and BCLK is same one. NOTE: The audio captured is in  two's complement, with the MSB as first bit.
 
 ```vhdl
 --The hand
@@ -332,26 +336,28 @@ if (start = '1') and (reset /= '0') then
 ```
 <br>
 
-### <font size=4> IP core design in PLL and ROM, BRAM</font>
+### <font size=4> IP core design in PLL, ROM and BRAM</font>
 
 Xilinx provides IP core to assistant design.  
 
-We use the clocking_wizard IP to generate an exact 12.288MHz clock that is used to synchronize the captured data by I2S. In the IP GUI, we only use in1, reset_n and out1. This means that the reset should be active low. The input clock is 100MHz and the desired output should be set to 12.228MHz.
+We use the clocking_wizard IP to generate an exact 12.288MHz clock that is used to synchronize the captured data by I2S. In the IP GUI, we only use in1, reset_n and out1. This means that the reset should be active low. The input clock is 100MHz and the desired output should be set to 12.28MHz.
 
- LUTv is a ROM to give the algorithm a fixed picture of the stage. It is look-up-table with vectors for each pixel in each correlation line. 12 bits of position data (6 bit X and 6 bit for Y), 95(128) points per line, 140 lines (17920). It's generated using block memory generator IP. Set as single port ROM. width: 12 bits, length 17920. Load LUTv.coe as inital value. Always enabled.
+ LUTv is a ROM to give the algorithm a fixed picture of the stage. It is look-up-table with vectors for each pixel in each correlation line. 12 bits of position data (6 bit X and 6 bit for Y), 95 (128 stored) points per line, 140 lines or 17920in total). It's generated using block memory generator IP. Set as single port ROM. width: 12 bits, length 17920. Load LUTv.coe as inital value. Always enabled.
 
 
-PictureFrame block: - Picture frame to store image from each cross-correlation.  32 bit depth of grayscale value, 64 by 128 pixels. It's also generated using block memory generator IP.  Set as simple dual port RAM. Read first. width: 32, length 8192. common clock. Always enabled
-
-<br>
+PictureFrame block: Picture frame to store image from each cross-correlation.  32 bit depth of grayscale value, 64 by 128 pixels. It's also generated using block memory generator IP.  Set as simple dual port RAM. Read first. width: 32, length 8192. common clock. Always enabled.
 
 <br>
 
+<br>
 
 
 
 
-## <font size=5>**TOP.vhdl workflow** (_newest version_)</font>
+
+## <font size=5>**TOP.vhdl workflow** (_Final version_)</font>
+
+
 
 - ACFC decides how to configure ADC (using FSM)
 
@@ -381,24 +387,14 @@ PictureFrame block: - Picture frame to store image from each cross-correlation. 
 
 
 ## <font size=5>**Test Environment**</font>
-
-### <font size=4>Switches Assignment</font>
-
-(fig here)
-
-As introduced before, switches work in unfix region but also to start (or reset) some modules like Ethernet and Algorithm. 
-
-<br>
-
-### <font size=4>Wire Connection</font>
-
+There are input files found. These files can be used for behavioral verification. To verify the output, you could save the output in LOG files, then plot the result in MATLAB and verify the behavior.
 
 
 <br>
 
-### <font size=4>Signal Simulti and Speaker</font>
+### <font size=4>Signal Stimuli and Speaker</font>
 
-Wave generator 
+Wave generator can be used to test the pipeline between the ADC and DAC. Without a working path, the algorithm will not perform as expected. The ADC data was captured through the Ethernet, and then saved as input files. This can help the developer make a testbench that takes them as input and verify the algorithm.
 
 <br>
 
@@ -413,11 +409,11 @@ Wave generator
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTgyMTEyNjY3NCwtMTY4MDMzNDAyMCwtMj
-A4NzgwNzgxMSwxNTA2NDQ4MzAwLC0yMjM2NDQ2MzEsLTYwMDk3
-NzkxMSw2NjQ0NzY0NzcsMTQ5MzExOTUyOCwyMDIzMDA3MzQ3LC
-0xNDUwODQ1NDIwLC04MzQ1NjIzODcsMTIxNjM4NjU1NiwtMTc1
-MDYyMDkzMiw3ODk2MDAwMzUsMTU4MDEwNTQ1LDIwMDY5Njc2Nj
-ksMTE4ODQ3NTkwOCwtMjA5NDYzNDk2NCwxMjI2OTA0MzU2LC0x
-MTYwNjA0MDI3XX0=
+eyJoaXN0b3J5IjpbNjcwMzU4MTYsNTI5NTY2ODQzLDg2NDE1Nz
+Y1LC05Njk1NjQ4MTQsNTI1MjA1MjYsLTM0NzQyNjE5MCwtMTQ3
+Njk1MjE4NSwxODIxMTI2Njc0LC0xNjgwMzM0MDIwLC0yMDg3OD
+A3ODExLDE1MDY0NDgzMDAsLTIyMzY0NDYzMSwtNjAwOTc3OTEx
+LDY2NDQ3NjQ3NywxNDkzMTE5NTI4LDIwMjMwMDczNDcsLTE0NT
+A4NDU0MjAsLTgzNDU2MjM4NywxMjE2Mzg2NTU2LC0xNzUwNjIw
+OTMyXX0=
 -->
