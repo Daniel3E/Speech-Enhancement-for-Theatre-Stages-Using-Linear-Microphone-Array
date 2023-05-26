@@ -219,6 +219,8 @@ architecture arch_TOP_i2s_i2c_acfc_complex_filter_ethernet_dac of TOP is
   -- y result
   signal y: std_logic_vector(5 downto 0);
   ------------------------------------
+
+  -- generated using clocking wizard IP. 100MHz input. 12,288 MHz output. Buffer: common buffer. reset negative
   component clk_wiz_0 is
     port (
       clk_out1  : out STD_LOGIC;
