@@ -18,16 +18,25 @@ entity PositionSolverImager is
 end PositionSolverImager;
 
 architecture Behavioral of PositionSolverImager is
-	COMPONENT LUTv IS 	-- look-up-table with vectors for each pixel in each correlation line
-	PORT (				-- 12 bits of position data (6 bit X and 6 bit for Y), 95(128) points per line, 140 lines (17920)
+	
+	
+	-- look-up-table with vectors for each pixel in each correlation line
+	-- 12 bits of position data (6 bit X and 6 bit for Y), 95(128) points per line, 140 lines (17920)
+	-- generated using block memory generator IP. Set as single port ROM. width: 12 bits, length 17920. Load LUTv.coe as inital value. Always enabled
+	COMPONENT LUTv IS 	
+	PORT (				
 		clka: 	IN STD_LOGIC;
 		addra: 	IN STD_LOGIC_VECTOR(14 DOWNTO 0);
 		douta: 	OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
 	);
     END COMPONENT LUTv;
 	
-	COMPONENT Picture_Frame IS 	-- picture frame to store image from each cross-correlation.
-	PORT (						-- 32 bit depth of grayscale value, 64 by 128 pixels
+	
+	-- picture frame to store image from each cross-correlation.
+	-- 32 bit depth of grayscale value, 64 by 128 pixels
+	-- generated using block memory generator IP. Set as simple dual port RAM. Read first. width: 32, length 8192. common clock. Always enabled
+	COMPONENT Picture_Frame IS 	
+	PORT (						
 		clka: 	IN STD_LOGIC;
 		wea:  	IN STD_LOGIC_VECTOR(0 DOWNTO 0);
 		addra: 	IN STD_LOGIC_VECTOR(12 DOWNTO 0);
