@@ -118,12 +118,15 @@ For exact connection between the ADC and FPGA, check the constraint file.
 
 To start the algorithm, you need to first set the switch number 14 to 1. This sets ENABLE_ALGORITHM to one. Then set switch 15 to 1 to enable I2S. If you want to send data through Ethernet, set switch 15 to one.
 
-## <font size=5>**Algorithm Design (Extraction + Addressing + Combination)** </font>
+## <font size=5>**Algorithms Design (Extraction + Addressing + Combination)** </font>
 
 
-As the core of the system, we designed and tested the algorithms' structure consisting of multiple entities.
+As the core of the system, we designed and tested the algorithms structure consisting of multiple entities.
 
-The key thought is that algorithms should **extract** acoustic information from audio in each channel and **combine** them into "_join force_". It is possible to **calculate** the 2D position profile according to this _force_.
+The simple algorithm should pan the output audio towards the loudest microphone. The blocks are described in the figure below.
+![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/Simple.png)
+
+The key thought is that the complex algorithms should **extract** acoustic information from audio in each channel and **combine** them into "_join force_". It is possible to **calculate** the 2D position profile according to this _force_.
 
 - The _cross-correlation_ extracts the signal similarity between 1-2, 2-3, 3-4 channels.
 - Calculation resources are rarely such that we pre-store all possible 2D positions in ROM, rather than real-time calculation. In other words, we replace calculation with **addressing** operations by sacrificing the performance (refresh rate = 0.5 ms) in an acceptable range.
@@ -176,7 +179,7 @@ MATLAB provides a toolbox to receive streams through UDP, also, like what we use
 
 A file tree to show our project design: 
 
-### \***<font size=4>TOP.vhdl </font>**
+### **<font size=4>TOP.vhdl </font>**
 
 - **Control unit:**
   - ACFC (ADC configuration flow controller)
@@ -365,17 +368,15 @@ PictureFrame block: Picture frame to store image from each cross-correlation.  3
 
 - PLL generates MCLK to ADC, such that ADC can generate BCLK and FSYNC from it.
 
-- ADC working...
-
 - I<sup>2</sup>S receiver collects DATA from ADC and sends the four channels -- ***left1 left2 right1 right2***-- to the algorithm. Note: The signal is in two's complement.
 
 - Ethernet supports 100M high speed for real-time audio data transmission every FSYNC.
 
 - When both the datapath and Ethernet are enabled, audio data can be transmitted from the FPGA port to the PC port for further analysis.
 
-- **Simple-Algorithm takes the inputs and enhances the audio with one output. That is based on power estimation**
+- Simple-Algorithm takes the inputs and enhances the audio with one output. That is based on power estimation
 
-- **Complex-Algorithm takes the inputs, puts them through low-pass filter, then does cross-correlation and prints the correlation lines on a LUT.  One output is combined from the four attenuation compensation blocks..**
+- Complex-Algorithm takes the inputs, puts them through low-pass filter, then does cross-correlation and prints the correlation lines on a LUT.  One output is combined from the four attenuation compensation blocks.
 
 - DAC takes the audio signal in two's complement, inverts it to unsigned, then outputs the audio processed by the algorithm.
 
@@ -407,13 +408,3 @@ Wave generator can be used to test the pipeline between the ADC and DAC. Without
 
 
 
-
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbNjcwMzU4MTYsNTI5NTY2ODQzLDg2NDE1Nz
-Y1LC05Njk1NjQ4MTQsNTI1MjA1MjYsLTM0NzQyNjE5MCwtMTQ3
-Njk1MjE4NSwxODIxMTI2Njc0LC0xNjgwMzM0MDIwLC0yMDg3OD
-A3ODExLDE1MDY0NDgzMDAsLTIyMzY0NDYzMSwtNjAwOTc3OTEx
-LDY2NDQ3NjQ3NywxNDkzMTE5NTI4LDIwMjMwMDczNDcsLTE0NT
-A4NDU0MjAsLTgzNDU2MjM4NywxMjE2Mzg2NTU2LC0xNzUwNjIw
-OTMyXX0=
--->
