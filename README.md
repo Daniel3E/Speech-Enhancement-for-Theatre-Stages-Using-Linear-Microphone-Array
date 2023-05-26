@@ -100,30 +100,30 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
 
 ## <font size=5>**Installation and Setup** </font>
-To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to ):
+To run the project by your own, you need to establish the communication with ADC. You need to use the switches in order. The switches on the FPGA (From 1 to 7):
 
 
-{ SW_vdd_ok } —— Start ACFC.  Let be on logical 1.
+{ SW_vdd_ok } —— Starts ACFC.  Let be on logical 1.
 
-{ SHDNZ_ready }  ——  Shutdown ADC. SLet to 1 then switch to 0 be on logical 1. 
+{ SHDNZ_ready }  ——  Inverse shutdown of ADC. Let be on logical 1. 
 
-{ GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Set to 1 then switch to 0 . 
+{ GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Toggle switch to 1 then back to 0. 
 
-{ master_mode }  —— configure device as master. Set to 1 then switch to 0 
+{ master_mode }  —— configure device as bus master. Sets ADC to bus master. Toggle switch to 1 then back to 0. 
 
-{ FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288M. et . This set the relationship between BCLK and FSYNC  
+{ FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288MHz. This sets the relationship between BCLK and FSYNC . Toggle switch to 1 then back to 0. 
 
-{ I2S_mode }  —— set protocol to I2S. Set to logical 1 then switch to 0.
+{ I2S_mode }  —— sets protocol to I2S. Toggle switch to 1 then back to 0. 
 
-{ MCLK_root }  ——  Let the ADC generate BCLK and FSYNC. Set to 1 then switch 0.
+{ finish_config_input }  —— Finish the configuration. Toggle switch to 1 then back to 0. 
 
-{ finish_config_input }  —— Finish the configuration. Set as logical 1After doing the last step, you should start getting audio data from the SDOUT pin of the ADC. This can then be mapped through the audio capturing protocol
+{ MCLK_root }  —— Set as logical 1.
 
-{ MCLK_root }  —— FS: 4 on the FPGA.
+After doing the last step, you should start getting audio data from the SDOUT pin of the ADC. This is mapped through the audio capturing protocol on the FPGA.
 
 For exact connection between the ADC and FPGA, check the constraint file.
 
-To start the algorithm, you need to first set the switch number 14 to 1. This sets ENABLE_ALGORITHM to one. Then set switch 15 to 1 to enable I2S. If you want to send data through Ethernet, set switch 16 to one.
+To start the algorithm, you need to first set the switch number 14 to 1. This sets the ENABLE_ALGORITHM flag. Then set switch 15 to 1 to enable reading of the I2S bus. If you want to send data through ethernet, set switch 16 to one. To reset ethernet driver for a new sample collection, toggle switch 8 to 1 and back to 0.
 
 ## <font size=5>**Algorithms Design (Extraction + Addressing + Combination)** </font>
 
@@ -412,3 +412,13 @@ Wave generator can be used to test the pipeline between the ADC and DAC. Without
 
 
 
+
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbNTg2NjM3OTkwLC02OTUyODA4NzEsMTg0Mz
+YxNjg4MiwtMTc3NjEyMzM5MSw1NDc0MTA4MTMsMzE3NTgyMDks
+NTI2MjE2MTEwLC03NDIwMTk3NDgsLTM2NTQ0MTkyOSwtMTU5Mj
+A1Njg3MiwtMzc3MzcxMzE4LDY3MDM1ODE2LDUyOTU2Njg0Myw4
+NjQxNTc2NSwtOTY5NTY0ODE0LDUyNTIwNTI2LC0zNDc0MjYxOT
+AsLTE0NzY5NTIxODUsMTgyMTEyNjY3NCwtMTY4MDMzNDAyMF19
+
+-->
