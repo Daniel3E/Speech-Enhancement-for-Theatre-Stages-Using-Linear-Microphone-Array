@@ -101,6 +101,7 @@ We can see that only J11, 12, 13, 14 and J27 are installed for the input signals
 
 ## <font size=5>**Installation and Setup** </font>
 To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to 6):
+
 { SW_vdd_ok } —— Start ACFC.  Let be on logical 1
 
 { SHDNZ_ready }  ——  Shutdown ADC. Set to 1 then switch to 0 . 
