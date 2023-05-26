@@ -100,20 +100,26 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
 
 ## <font size=5>**Installation and Setup** </font>
-To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to 6):
+To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to ):
 
-{ SW_vdd_ok } —— Start ACFC.  Let be on logical 1
 
-{ SHDNZ_ready }  ——  Shutdown ADC. Set to 1 then switch to 0 . 
+{ SW_vdd_ok } —— Start ACFC.  Let be on logical 1.
+
+{ SHDNZ_ready }  ——  Shutdown ADC. SLet to 1 then switch to 0 be on logical 1. 
 
 { GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Set to 1 then switch to 0 . 
 
-{ master_mode }  —— configure device as master. Set to 1 then switch to 0 .
+{ master_mode }  —— configure device as master. Set to 1 then switch to 0 
 
-{ FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288M. Set to 1 then switch to 0 . This set the relationship between BCLK and FSYNC  
+{ FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288M. et . This set the relationship between BCLK and FSYNC  
 
-{ I2S_mode }  —— output data I2S. Set to logical 1.
-After doing the last step, you should start getting audio data from the DOUT pin of the ADC. This can then be mapped through the audio capturing protocol.
+{ I2S_mode }  —— set protocol to I2S. Set to logical 1 then switch to 0.
+
+{ MCLK_root }  ——  Let the ADC generate BCLK and FSYNC. Set to 1 then switch 0.
+
+{ finish_config_input }  —— Finish the configuration. Set as logical 1After doing the last step, you should start getting audio data from the SDOUT pin of the ADC. This can then be mapped through the audio capturing protocol
+
+{ MCLK_root }  —— FS: 4 on the FPGA.
 
 For exact connection between the ADC and FPGA, check the constraint file.
 
@@ -406,13 +412,3 @@ Wave generator can be used to test the pipeline between the ADC and DAC. Without
 
 
 
-
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbLTc0MjAxOTc0OCwtMzY1NDQxOTI5LC0xNT
-kyMDU2ODcyLC0zNzczNzEzMTgsNjcwMzU4MTYsNTI5NTY2ODQz
-LDg2NDE1NzY1LC05Njk1NjQ4MTQsNTI1MjA1MjYsLTM0NzQyNj
-E5MCwtMTQ3Njk1MjE4NSwxODIxMTI2Njc0LC0xNjgwMzM0MDIw
-LC0yMDg3ODA3ODExLDE1MDY0NDgzMDAsLTIyMzY0NDYzMSwtNj
-AwOTc3OTExLDY2NDQ3NjQ3NywxNDkzMTE5NTI4LDIwMjMwMDcz
-NDddfQ==
--->
