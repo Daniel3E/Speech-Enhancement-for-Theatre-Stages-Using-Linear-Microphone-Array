@@ -117,7 +117,7 @@ After doing the last step, you should start getting audio data from the DOUT pin
 
 For exact connection between the ADC and FPGA, check the constraint file.
 
-To start the algorithm, you need to first set the switch number 14 to 1. This sets ENABLE_ALGORITHM to one. Then set switch 15 to 1 to enable I2S. If you want to send data through Ethernet, set switch 15 to one.
+To start the algorithm, you need to first set the switch number 14 to 1. This sets ENABLE_ALGORITHM to one. Then set switch 15 to 1 to enable I2S. If you want to send data through Ethernet, set switch 16 to one.
 
 ## <font size=5>**Algorithms Design (Extraction + Addressing + Combination)** </font>
 
