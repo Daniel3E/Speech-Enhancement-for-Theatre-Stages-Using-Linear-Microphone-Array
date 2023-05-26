@@ -107,13 +107,21 @@ We can see that only J11, 12, 13, 14 and J27 are installed for the input signals
 
 To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to 6):
 { SW_vdd_ok } —— Start ACFC.  Let be on logical 1
+
 { SHDNZ_ready }  ——  Shutdown ADC. Set to 1 then switch to 0 . 
+
 { GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Set to 1 then switch to 0 . 
+
 { master_mode }  —— configure device as master. Set to 1 then switch to 0 .
+
 { FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288M. Set to 1 then switch to 0 . This set the relationship between BCLK and FSYNC  
+
 { I2S_mode }  —— output data I2S. Set to logical 1.
 After doing the last step, you should start getting audio data from the DOUT pin of the ADC. This can then be mapped through the audio capturing protocol.
+
 For exact connection between the ADC and FPGA, check the constraint file.
+
+To start the algorithm, you need to first set the switch 
 
 ## <font size=5>**Algorithm Design (Extraction + Addressing + Combination)** </font>
 
@@ -145,7 +153,7 @@ MATLAB provides a toolbox to receive streams through UDP, also, like what we use
 
 ## <font size=5>**KEY Parameter**</font>
 
-- Audio: I<sup>2</sup>S audio format with 48kHz FSYNC, 12.288MHz BCLK, and 16-bit word length.
+- Audio: I<sup>2</sup>S audio format with 48kHz FSYNC, 12.288MHz BCLK, and 16-bit word length. Input is in two's complement.
 - Ethernet: 100MHz; the frame is 50  + 18 + 4 = 72 bytes, takes in 5.76 us.
 - I<sup>2</sup>C: 
 
@@ -291,7 +299,7 @@ Registers' addresses and values are 8 bits that 2×9 states in two launch-set ca
 
 ### <font size=4>Serial-to-Parallel in I<sup>2</sup>S</font>
 
-Serial stream mixtures 4 channels' audio in SDOUT. Simple counter or fsm design can parallel channels in one FSYNC cycle since the channels' wordlength and BCLK is same one. 
+Serial stream mixtures 4 channels' audio in SDOUT. Simple counter or fsm design can parallel channels in one FSYNC cycle since the channels' wordlength and BCLK is same one. NOTE: The audio captured is in  two's complement, with the MSB as first bit.
 
 ```vhdl
 --The hand
@@ -327,9 +335,13 @@ if (start = '1') and (reset /= '0') then
 ### <font size=4> IP core design in PLL and ROM, BRAM</font>
 
 Xilinx provides IP core to assistant design.  
+
 We use the clocking_wizard IP to generate an exact 12.288MHz clock that is used to synchronize the captured data by I2S. In the IP GUI, we only use in1, reset_n and out1. This means that the reset should be active low. The input clock is 100MHz and the desired output should be set to 12.228MHz.
 
+ LUTv is a ROM to give the algorithm a fixed picture of the stage. It is look-up-table with vectors for each pixel in each correlation line. 12 bits of position data (6 bit X and 6 bit for Y), 95(128) points per line, 140 lines (17920). It's generated using block memory generator IP. Set as single port ROM. width: 12 bits, length 17920. Load LUTv.coe as inital value. Always enabled.
 
+
+PictureFrame block: - Picture frame to store image from each cross-correlation.  32 bit depth of grayscale value, 64 by 128 pixels. It's also generated using block memory generator IP.  Set as simple dual port RAM. Read first. width: 32, length 8192. common clock. Always enabled
 
 <br>
 
@@ -349,19 +361,19 @@ We use the clocking_wizard IP to generate an exact 12.288MHz clock that is used 
 
 - ADC working...
 
-- I<sup>2</sup>S receiver collects DATA from ADC and sends the four channels -- ***left1 left2 right1 right2***-- to the algorithm.
+- I<sup>2</sup>S receiver collects DATA from ADC and sends the four channels -- ***left1 left2 right1 right2***-- to the algorithm. Note: The signal is in two's complement.
 
 - Ethernet supports 100M high speed for real-time audio data transmission every FSYNC.
 
 - When both the datapath and Ethernet are enabled, audio data can be transmitted from the FPGA port to the PC port for further analysis.
 
-- **Simple-Algorithm takes the inputs and enhances the audio with one output.**
+- **Simple-Algorithm takes the inputs and enhances the audio with one output. That is based on power estimation**
 
-- DAC outputs the audio processed by the algorithm.
+- **Complex-Algorithm takes the inputs, puts them through low-pass filter, then does cross-correlation and prints the correlation lines on a LUT.  One output is combined from the four attenuation compensation blocks..**
+
+- DAC takes the audio signal in two's complement, inverts it to unsigned, then outputs the audio processed by the algorithm.
 
 <br>
-
-
 
 
 ---
@@ -401,11 +413,11 @@ Wave generator
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNjA4NjQ3NTYzLC0yMDg3ODA3ODExLDE1MD
-Y0NDgzMDAsLTIyMzY0NDYzMSwtNjAwOTc3OTExLDY2NDQ3NjQ3
-NywxNDkzMTE5NTI4LDIwMjMwMDczNDcsLTE0NTA4NDU0MjAsLT
-gzNDU2MjM4NywxMjE2Mzg2NTU2LC0xNzUwNjIwOTMyLDc4OTYw
-MDAzNSwxNTgwMTA1NDUsMjAwNjk2NzY2OSwxMTg4NDc1OTA4LC
-0yMDk0NjM0OTY0LDEyMjY5MDQzNTYsLTExNjA2MDQwMjcsMTQz
-MjQxNTI4OF19
+eyJoaXN0b3J5IjpbMTgyMTEyNjY3NCwtMTY4MDMzNDAyMCwtMj
+A4NzgwNzgxMSwxNTA2NDQ4MzAwLC0yMjM2NDQ2MzEsLTYwMDk3
+NzkxMSw2NjQ0NzY0NzcsMTQ5MzExOTUyOCwyMDIzMDA3MzQ3LC
+0xNDUwODQ1NDIwLC04MzQ1NjIzODcsMTIxNjM4NjU1NiwtMTc1
+MDYyMDkzMiw3ODk2MDAwMzUsMTU4MDEwNTQ1LDIwMDY5Njc2Nj
+ksMTE4ODQ3NTkwOCwtMjA5NDYzNDk2NCwxMjI2OTA0MzU2LC0x
+MTYwNjA0MDI3XX0=
 -->
