@@ -6,16 +6,12 @@
 
 ## <font size=5>**Specification**</font>
 
-- In the theatre it’s sometimes hard to hear what’s being said since the actors want to speak in a natural voice; shouting when acting in a play would be strange. Since this is a problem people have been looking into ways to solve this. An obvious solution is to use microphones but it will look awkward if the actors go round holding microphones, so we need another way. In most cases we don’t want to give full amplification of the voices but just some gentle boost and support to the voice coming from the stage.
+- This project aims to capture audio using a linear microphone array and process it using a FPGA finally output the processed audio. The linear array consists of four microphones that are being connected to hardware using AD converters, then processed by an FPGA and output through a DA converter.
 
-- In this project, we will use a small number of audio microphones. Our system uses four microphones that are being connected to hardware using AD converters, then processed by an FPGA and output through a DA converter.
+- There is two different implementations of audio combination labeled as a simple and a complex algorithm.
 
-- We will start by activating only one microphone at a time but then we will move to a solution where the microphones are panned and have different levels of activation to make the transition between the sources more gentle. Some type of user interface to adjust settings is preferable. It could be in the form of a terminal or a GUI.
+The simple algorithm uses power estimation to determine the best source microphone. The complex algorithm calculates the position of an actor to compensate for attenuation.
 
-- Optional parts of the project include filtering of the sound to enhance the quality and reduce noise. There are several options such as: 
-  1.	High-pass and low-pass filter - optionally with variable cutoff frequencies. 
-  2.	Sweepable filter with damping/amplification and variable Q.
-  3.	Adaptive filter for elimination of positive audio feedback from speaker to microphone.
 
 <br>
 
@@ -24,7 +20,6 @@
 
 
 ## <font size=5>**What is our project NOT for...?**</font>
-
 - ...Any aim for commercial application since it is a ***prototype*** on FPGA only.
 
 - ...Application in strong noise scenes since we have no ***tested-well filter*** yet.
@@ -95,7 +90,7 @@
 
 (Fig.1 Block Diagram)
 
-The system consists of FPGA, peripheral ADC + DAC. Four microphones as Left1/2-Right1/2 channels sample analog audio and ADC will convert data to digital. **I<sup>2</sup>S receiver** operates at a sample rate of 48Khz and a BCLK-FSYNC ratio of 256, splitting the audio into four 16-bit wordlengths. We prepare two **algorithms** for panning channels according to acoustic source distance off each microphone. A virtual distribution figure shows the correct position estimation out of ***timing-delay*** or ***power estimation***, respectively in two algorithms.  Align with enhancement and filter, the algorithm part enhances the acoustic performance. DAC, the end of the *data path*, can output the processed audio stream. 
+The system consists of FPGA, peripheral ADC + DAC. Four microphones as Left1/2-Right1/2 channels sample analog audio and ADC will convert data to digital. **I<sup>2</sup>S receiver** operates at a sample rate of 48Khz and a BCLK-FSYNC ratio of 256, splitting the audio into four 16-bit word length. We prepare two **algorithms** for panning channels according to acoustic source distance off each microphone. A virtual distribution figure shows the correct position estimation out of ***timing-delay*** or ***power estimation***, respectively in two algorithms.  Align with enhancement and filter, the algorithm part enhances the acoustic performance. DAC, the end of the *data path*, can output the processed audio stream. 
 
 To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol and differential input, it is necessary to configure the relative registers in the ADC using *control path*. The **I<sup>2</sup>C master** provides valid control information writing mechanisms to ADC, and the **ADC-Configuration-Flow-Controller (_ACFC_) ** manages the priority, location, and implicit value of the register writes based on the datasheet and datapath requirements. MCLK is generated from **PLL module** as the source clock for ADC.
 
@@ -104,8 +99,24 @@ To customize the peripheral ADC parameters, such as the I<sup>2</sup>S protocol 
 <br>
 
 
+## <font size=5>**ADC Wire connection to FPGA and system establishment** </font>
+![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/ADC_connection.jpeg)
+(Fig. The connection of the ADC)
+
+We can see that only J11, 12, 13, 14 and J27 are installed for the input signals of the ADC. The rest  are uninstalled. MCLK is connected to the left pin of GPIO1, because we have the ADC as master. You should also resolder a zero ohm resistor on the back, to allow the ADC to run in master mode. Remove R21 and replace it to R22. 
+
+To run the project by your own, you need to establish the communication with ADC. You need to push the switches in order. The switches on the FPGA (From 1 to 6):
+{ SW_vdd_ok } —— Start ACFC.  Let be on logical 1
+{ SHDNZ_ready }  ——  Shutdown ADC. Set to 1 then switch to 0 . 
+{ GPIO_MCLK }  —— configure GPIO1 as MCLK input.  Set to 1 then switch to 0 . 
+{ master_mode }  —— configure device as master. Set to 1 then switch to 0 .
+{ FS_48k_256_BCLK }  —— FS: 48K, BCLK: 12.288M. Set to 1 then switch to 0 . This set the relationship between BCLK and FSYNC  
+{ I2S_mode }  —— output data I2S. Set to logical 1.
+After doing the last step, you should start getting audio data from the DOUT pin of the ADC. This can then be mapped through the audio capturing protocol.
+For exact connection between the ADC and FPGA, check the constraint file.
 
 ## <font size=5>**Algorithm Design (Extraction + Addressing + Combination)** </font>
+
 
 As the core of the system, we designed and tested the algorithms' structure consisting of multiple entities.
 
@@ -118,7 +129,7 @@ The key thought is that algorithms should **extract** acoustic information from 
 
 ![Block_Diagram](https://github.com/Ghostbut13/DAT096-PASS/blob/main/Diagram/complex_algo_description.png)
 
-(Fig.2 Algorithm)
+(Fig.2 Complex algorithm)
 
 <br>
 
@@ -134,9 +145,10 @@ MATLAB provides a toolbox to receive streams through UDP, also, like what we use
 
 ## <font size=5>**KEY Parameter**</font>
 
-- Audio: I<sup>2</sup>S audio format with 48kHz FSYNC, 6.144MHz BCLK, and 16-bit wordlength.
+- Audio: I<sup>2</sup>S audio format with 48kHz FSYNC, 12.288MHz BCLK, and 16-bit word length.
 - Ethernet: 100MHz; the frame is 50  + 18 + 4 = 72 bytes, takes in 5.76 us.
 - I<sup>2</sup>C: 
+
 
 
 
@@ -152,41 +164,51 @@ A file tree to show our project design here (_also in the newest released versio
 
 ### \***<font size=4>TOP.vhdl </font>**
 
-​	&ensp;|— **Control unit:**
+- **Control unit:**
+  - ACFC (ADC configuration flow controller)
 
-​			&ensp;&ensp;&ensp;&ensp;|— ACFC (ADC configuration flow controller)
+- **Interface in control path**
 
-​	&ensp;|— **Interface in control path**
+  - I<sup>2</sup>C master
 
-​			&ensp;&ensp;&ensp;&ensp;|— I<sup>2</sup>C master
+-  **Interface in datapath**:
+   - I<sup>2</sup>S receiver
 
-​	&ensp;|— **Interface in datapath**:
 
-​			&ensp;&ensp;&ensp;&ensp;|— I<sup>2</sup>S receiver
 
-​			&ensp;&ensp;&ensp;&ensp;|— UDP_ethernet
+-  **Interface in Ethernet**:
 
-​					&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;|—CRC
+   - UDP_ethernet
 
-​	&ensp;|— **Simple-Algorithm :**
+   - CRCr
 
-​			&ensp;&ensp;&ensp;&ensp;|— _single register_
+ - **Simple-Algorithm :**
+    - single register
+    - shift register
+	- power estimation
+    - MAX
+   - panning accumulator			
+   - fader
+   - M​ixer
 
-​			&ensp;&ensp;&ensp;&ensp;|— _shift register_
+- **Complex algorithm**:
+  - High pass filter
+  - BRAM 
+  - cross-correlationn
+  - Positionor
+  - Attenuation compensation
+  - Mixer
+  - Low pass filter
+  - 7segment
 
-​			&ensp;&ensp;&ensp;&ensp;|— _power estimation_
 
-​			&ensp;&ensp;&ensp;&ensp;|— _max_
-
-​			&ensp;&ensp;&ensp;&ensp;|— _panning accumulator_
-
-​			&ensp;&ensp;&ensp;&ensp;|— _fader_
-
-​			&ensp;&ensp;&ensp;&ensp;|—_mixer_
 
 ​	&ensp;|—**other files**
 
-​			&ensp;&ensp;&ensp;&ensp;|—PLL
+PLL12M : This is done by using the clocking_wizard IP block
+LUTv : This is done by using the block memory generator IP block
+LUT.coe is the file that is used in the block. This is a ROM.
+PictureFrame : This is done by using the block memory generator IP block. This is BRAM.
 
 <br>
 
@@ -271,11 +293,43 @@ Registers' addresses and values are 8 bits that 2×9 states in two launch-set ca
 
 Serial stream mixtures 4 channels' audio in SDOUT. Simple counter or fsm design can parallel channels in one FSYNC cycle since the channels' wordlength and BCLK is same one. 
 
+```vhdl
+--The hand
+ENTITY I2S IS
+  PORT  (
+    bclk:IN STD_LOGIC ;
+    start:IN STD_LOGIC ;
+    reset:IN STD_LOGIC ;
+    fsync:IN STD_LOGIC ;
+    DIN : IN STD_LOGIC;
+    L1_out : out std_logic_vector (15 downto 0); --mic 1
+    L2_out : out std_logic_vector (15 downto 0);
+    R1_out : out std_logic_vector (15 downto 0);
+    R2_out : out std_logic_vector (15 downto 0)  --mic 4
+    );
+END ENTITY I2S;
+
+if (start = '1') and (reset /= '0') then
+          if fsync='0' then
+            go to left_channel_1_state;
+          when left_channel_1_state
+            count to 16 then left_channel_2_state
+          when left_channel_2_state
+            wait for fsync = '1' then count to 16 then 	
+            right_channel_1_state
+          when right_channel_1_state
+           count to 16 then wait for fsync='0'
+          when fsync = '0' 
+           release all register values to the algorithm       
+```
 <br>
 
 ### <font size=4> IP core design in PLL and ROM, BRAM</font>
 
 Xilinx provides IP core to assistant design.  
+We use the clocking_wizard IP to generate an exact 12.288MHz clock that is used to synchronize the captured data by I2S. In the IP GUI, we only use in1, reset_n and out1. This means that the reset should be active low. The input clock is 100MHz and the desired output should be set to 12.228MHz.
+
+
 
 <br>
 
@@ -285,7 +339,7 @@ Xilinx provides IP core to assistant design.
 
 
 
-## <font size=5>**TOP.vhdl workflow** (_newest version_)</font>
+## <font size=5>**TOP.vhdl workflow** (_newest version_)</font>
 
 - ACFC decides how to configure ADC (using FSM)
 
@@ -346,3 +400,12 @@ Wave generator
 
 
 
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbNjA4NjQ3NTYzLC0yMDg3ODA3ODExLDE1MD
+Y0NDgzMDAsLTIyMzY0NDYzMSwtNjAwOTc3OTExLDY2NDQ3NjQ3
+NywxNDkzMTE5NTI4LDIwMjMwMDczNDcsLTE0NTA4NDU0MjAsLT
+gzNDU2MjM4NywxMjE2Mzg2NTU2LC0xNzUwNjIwOTMyLDc4OTYw
+MDAzNSwxNTgwMTA1NDUsMjAwNjk2NzY2OSwxMTg4NDc1OTA4LC
+0yMDk0NjM0OTY0LDEyMjY5MDQzNTYsLTExNjA2MDQwMjcsMTQz
+MjQxNTI4OF19
+-->
