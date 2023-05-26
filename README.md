@@ -395,16 +395,21 @@ PictureFrame block: Picture frame to store image from each cross-correlation.  3
 
 
 ## <font size=5>**Test Environment**</font>
-There are input files found. These files can be used for behavioral verification. To verify the output, you could save the output in LOG files, then plot the result in MATLAB and verify the behavior.
+There are input files, these files can be used for behavioral verification. To verify the output, you could save the output in LOG files, then plot the result in MATLAB and verify the behavior.
+
+The system has been tested in and verifyed to work. The microphones used were Shure SM57 and AKG C568EB. They were placed on stands 1 m apart. We used Behringer ultragain pro mic2200 preamplifer in between the ADC and the microphone. The preamplifer is important as we do not use the gain internally in the ADC and so external gain is crucial for correct input level. For the output we had a Orange micro dark amplifier. The output amplifier is not important but was mainly used as a female to female connector adapter.
+
+![Block_Diagram](https://github.com/Daniel3E/SpeechEnhancementforTheatreStagesUsingLinearMicrophoneArray/blob/main/Diagram/Whole_system.jpg)
+(Fig. Overview of the test)
+
+
+![Block_Diagram](https://github.com/Daniel3E/SpeechEnhancementforTheatreStagesUsingLinearMicrophoneArray/blob/main/Diagram/Speaker.jpg)
+(Fig. Ouput amplifier used as adapter between DAC and speaker)
 
 
 <br>
 
-### <font size=4>Signal Stimuli and Speaker</font>
 
-Wave generator can be used to test the pipeline between the ADC and DAC. Without a working path, the algorithm will not perform as expected. The ADC data was captured through the Ethernet, and then saved as input files. This can help the developer make a testbench that takes them as input and verify the algorithm.
-
-<br>
 
 
 <br>
